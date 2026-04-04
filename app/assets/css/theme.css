@@ -1,0 +1,59 @@
+:root {
+  --theme-primary: #6366f1;
+  --theme-secondary: #f43f5e;
+  --theme-primary-rgb: 99, 102, 241;
+  --theme-secondary-rgb: 244, 63, 94;
+}
+
+[data-theme='dark'] {
+  --theme-primary: #8b5cf6;
+  --theme-secondary: #ec4899;
+  --theme-primary-rgb: 139, 92, 246;
+  --theme-secondary-rgb: 236, 72, 153;
+  --theme-bgc: #1e1e1e;
+}
+
+/* === Rose === */
+[data-color-scheme='rose'] {
+  --theme-primary: #e11d48;
+  --theme-secondary: #a855f7;
+  --theme-primary-rgb: 225, 29, 72;
+  --theme-secondary-rgb: 168, 85, 247;
+}
+
+[data-theme='dark'][data-color-scheme='rose'] {
+  --theme-primary: #f43f5e;
+  --theme-secondary: #c084fc;
+  --theme-primary-rgb: 244, 63, 94;
+  --theme-secondary-rgb: 192, 132, 252;
+}
+
+/* === Emerald === */
+[data-color-scheme='emerald'] {
+  --theme-primary: #059669;
+  --theme-secondary: #0ea5e9;
+  --theme-primary-rgb: 5, 150, 105;
+  --theme-secondary-rgb: 14, 165, 233;
+}
+
+[data-theme='dark'][data-color-scheme='emerald'] {
+  --theme-primary: #10b981;
+  --theme-secondary: #38bdf8;
+  --theme-primary-rgb: 16, 185, 129;
+  --theme-secondary-rgb: 56, 189, 248;
+}
+
+/* === Amber === */
+[data-color-scheme='amber'] {
+  --theme-primary: #d97706;
+  --theme-secondary: #dc2626;
+  --theme-primary-rgb: 217, 119, 6;
+  --theme-secondary-rgb: 220, 38, 38;
+}
+
+[data-theme='dark'][data-color-scheme='amber'] {
+  --theme-primary: #f59e0b;
+  --theme-secondary: #ef4444;
+  --theme-primary-rgb: 245, 158, 11;
+  --theme-secondary-rgb: 239, 68, 68;
+}
