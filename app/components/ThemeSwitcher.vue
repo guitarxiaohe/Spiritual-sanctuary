@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ThemeMode, ColorScheme } from '~/stores/module/system/type'
+import type { ThemeMode, ColorScheme } from '~/stores/modules/system/type'
 
 const store = useSystemStore()
 

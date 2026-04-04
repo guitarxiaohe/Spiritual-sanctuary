@@ -40,14 +40,34 @@
     <!-- 筛选栏 -->
     <section class="filter-bar">
       <div class="filter-inner">
+        <!-- 可见标签 -->
         <button
-          v-for="tag in allTags"
+          v-for="tag in visibleTags"
           :key="tag"
           class="filter-btn"
           :class="{ active: activeTag === tag }"
           @click="toggleTag(tag)"
         >
           {{ tag }}
+        </button>
+
+        <!-- 展开按钮 -->
+        <button
+          v-if="!filterExpanded && hiddenCount > 0"
+          class="filter-btn filter-expand-btn"
+          @click="filterExpanded = true"
+        >
+          <span>···</span>
+          <span class="expand-badge">+{{ hiddenCount }}</span>
+        </button>
+
+        <!-- 收起按钮 -->
+        <button
+          v-if="filterExpanded && hiddenCount > 0"
+          class="filter-btn filter-collapse-btn"
+          @click="filterExpanded = false"
+        >
+          收起 ↑
         </button>
       </div>
     </section>
@@ -82,12 +102,22 @@ const { stories, likedIds, xiatouIds, toggleLike, toggleXiatou } = useStories()
 
 // 标签筛选
 const activeTag = ref<string | null>(null)
+const filterExpanded = ref(false)
+const FILTER_LIMIT = 20
 
 const allTags = computed(() => {
   const tagSet = new Set<string>()
   stories.value.forEach(s => s.tags.forEach(t => tagSet.add(t)))
   return ['全部', ...tagSet]
 })
+
+const visibleTags = computed(() =>
+  filterExpanded.value ? allTags.value : allTags.value.slice(0, FILTER_LIMIT)
+)
+
+const hiddenCount = computed(() =>
+  Math.max(0, allTags.value.length - FILTER_LIMIT)
+)
 
 const filteredStories = computed(() => {
   if (!activeTag.value || activeTag.value === '全部') return stories.value
@@ -302,6 +332,45 @@ const decorEmojis = [
 .filter-btn:hover {
   background: rgba(var(--theme-primary-rgb), 0.07);
   border-color: rgba(var(--theme-primary-rgb), 0.3);
+  color: var(--theme-primary);
+}
+
+/* 展开按钮 */
+.filter-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-style: dashed;
+  color: rgba(var(--theme-primary-rgb), 0.5);
+}
+
+.filter-expand-btn:hover {
+  border-style: solid;
+}
+
+.expand-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: rgba(var(--theme-primary-rgb), 0.12);
+  color: var(--theme-primary);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 收起按钮 */
+.filter-collapse-btn {
+  color: rgba(var(--theme-primary-rgb), 0.45);
+  border-style: dashed;
+}
+
+.filter-collapse-btn:hover {
+  border-style: solid;
   color: var(--theme-primary);
 }
 

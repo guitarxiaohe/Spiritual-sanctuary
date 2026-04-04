@@ -108,10 +108,23 @@ export const useSystemStore = defineStore('system', {
 
       root.setAttribute('data-theme', mode)
       root.setAttribute('data-color-scheme', this.colorScheme)
+
+      // 主题色
       root.style.setProperty('--theme-primary', colors.primary)
       root.style.setProperty('--theme-secondary', colors.secondary)
       root.style.setProperty('--theme-primary-rgb', hexToRgb(colors.primary))
       root.style.setProperty('--theme-secondary-rgb', hexToRgb(colors.secondary))
+
+      // 文字 & 背景——通过 JS 显式赋值，保证 CSS transition 两个方向都触发
+      if (this.isDark) {
+        root.style.setProperty('--theme-text', '#f0f0f0')
+        root.style.setProperty('--theme-text-muted', '#9ca3af')
+        root.style.setProperty('--theme-bg', '#0f0f0f')
+      } else {
+        root.style.setProperty('--theme-text', '#0f0f0f')
+        root.style.setProperty('--theme-text-muted', '#4b5563')
+        root.style.setProperty('--theme-bg', '#ffffff')
+      }
 
       localStorage.setItem('colorScheme', this.colorScheme)
     },

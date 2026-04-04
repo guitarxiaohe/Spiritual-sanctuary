@@ -3,6 +3,11 @@
   --theme-secondary: #f43f5e;
   --theme-primary-rgb: 99, 102, 241;
   --theme-secondary-rgb: 244, 63, 94;
+
+  /* 文字 & 背景色初始值（会被 JS _applyTheme 覆盖，此处仅作 fallback） */
+  --theme-text: #0f0f0f;
+  --theme-text-muted: #4b5563;
+  --theme-bg: #ffffff;
 }
 
 [data-theme='dark'] {
@@ -11,6 +16,13 @@
   --theme-primary-rgb: 139, 92, 246;
   --theme-secondary-rgb: 236, 72, 153;
   --theme-bgc: #1e1e1e;
+}
+
+/* 全局文字 & 背景跟随主题 */
+body {
+  color: var(--theme-text);
+  background-color: var(--theme-bg);
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 /* === Rose === */

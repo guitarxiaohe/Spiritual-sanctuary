@@ -1,6 +1,3 @@
-import {useSystemStore} from './module/system';
-import {useUserStore} from './module/user';
-export  {
-    useUserStore,
-    useSystemStore
-  };
+import { useSystemStore } from './modules/system'
+import { useUserStore } from './modules/user'
+export { useUserStore, useSystemStore }

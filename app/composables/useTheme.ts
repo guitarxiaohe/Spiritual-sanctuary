@@ -1,4 +1,4 @@
-import type { ThemeMode, ColorScheme } from '~/stores/module/system/type'
+import type { ThemeMode, ColorScheme } from '~/stores/modules/system/type'
 
 /**
  * 全局主题 composable
