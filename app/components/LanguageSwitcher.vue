@@ -7,15 +7,20 @@
       :title="$t('common.language')"
     >
       <div class="ls-stage">
-        <Transition name="flag-switch">
+        <Transition name="roll-fwd">
           <span :key="currentLocale" class="ls-flag" aria-hidden="true">
             {{ currentFlag }}
           </span>
         </Transition>
       </div>
 
-      <div class="ls-label">
-        {{ currentLocaleName }}
+      <div class="ls-dots">
+        <span
+          v-for="locale in locales"
+          :key="locale.code"
+          class="ls-dot"
+          :class="{ active: locale.code === currentLocale }"
+        />
       </div>
     </button>
 
@@ -75,11 +80,6 @@ const currentFlag = computed(() => {
   return current?.flag ?? '🌐'
 })
 
-const currentLocaleName = computed(() => {
-  const current = locales.value.find(l => l.code === locale.value)
-  return current?.name ?? 'Language'
-})
-
 const switchLanguage = async (code: string) => {
   if (code === locale.value) {
     panelOpen.value = false
@@ -104,17 +104,19 @@ const switchLanguage = async (code: string) => {
 
 .ls-trigger {
   position: relative;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 20px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
   border: 1.5px solid rgba(var(--theme-primary-rgb), 0.22);
   background: rgba(var(--theme-primary-rgb), 0.07);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 5px;
   transition:
     box-shadow 0.3s ease,
     border-color 0.3s ease,
@@ -124,14 +126,14 @@ const switchLanguage = async (code: string) => {
 }
 
 .ls-trigger:hover {
-  transform: scale(1.05);
+  transform: scale(1.07);
   box-shadow: 0 8px 28px -4px rgba(var(--theme-primary-rgb), 0.3);
   border-color: rgba(var(--theme-primary-rgb), 0.4);
   background: rgba(var(--theme-primary-rgb), 0.12);
 }
 
 .ls-trigger:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 .ls-trigger.panel-open {
@@ -141,8 +143,8 @@ const switchLanguage = async (code: string) => {
 
 .ls-stage {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -151,7 +153,7 @@ const switchLanguage = async (code: string) => {
 
 .ls-flag {
   position: absolute;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -161,11 +163,24 @@ const switchLanguage = async (code: string) => {
   will-change: transform, opacity;
 }
 
-.ls-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--theme-primary);
-  white-space: nowrap;
+.ls-dots {
+  display: flex;
+  gap: 3.5px;
+  align-items: center;
+}
+
+.ls-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(var(--theme-primary-rgb), 0.25);
+  transition: all 0.3s ease;
+}
+
+.ls-dot.active {
+  width: 10px;
+  border-radius: 2px;
+  background: var(--theme-primary);
 }
 
 .ls-panel {
@@ -261,31 +276,39 @@ const switchLanguage = async (code: string) => {
   z-index: 997;
 }
 
-.flag-switch-leave-active {
-  animation: flag-exit 0.35s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+.roll-fwd-leave-active {
+  animation: roll-exit-right 0.42s cubic-bezier(0.55, 0, 1, 0.45) forwards;
 }
-.flag-switch-enter-active {
-  animation: flag-enter 0.35s cubic-bezier(0, 0.55, 0.45, 1) forwards;
+.roll-fwd-enter-active {
+  animation: roll-enter-left 0.42s cubic-bezier(0, 0.55, 0.45, 1) forwards;
 }
 
-@keyframes flag-exit {
+@keyframes roll-exit-right {
   0% {
-    transform: translateY(0) scale(1);
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(10%, 8%) rotate(120deg) scale(0.85);
     opacity: 1;
   }
   100% {
-    transform: translateY(-20px) scale(0.8);
+    transform: translate(130%, 0) rotate(360deg) scale(0.5);
     opacity: 0;
   }
 }
 
-@keyframes flag-enter {
+@keyframes roll-enter-left {
   0% {
-    transform: translateY(20px) scale(0.8);
+    transform: translate(-130%, 0) rotate(-360deg) scale(0.5);
     opacity: 0;
   }
+  70% {
+    transform: translate(-8%, 8%) rotate(-60deg) scale(0.9);
+    opacity: 1;
+  }
   100% {
-    transform: translateY(0) scale(1);
+    transform: translate(0, 0) rotate(0deg) scale(1);
     opacity: 1;
   }
 }
@@ -342,21 +365,17 @@ const switchLanguage = async (code: string) => {
   }
 
   .ls-trigger {
-    height: 36px;
-    padding: 0 10px;
+    width: 52px;
+    height: 52px;
   }
 
   .ls-stage {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
   }
 
   .ls-flag {
-    font-size: 1rem;
-  }
-
-  .ls-label {
-    font-size: 0.75rem;
+    font-size: 1.35rem;
   }
 
   .ls-panel {
