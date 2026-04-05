@@ -18,7 +18,7 @@
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-num">{{ totalXiatou }}</span>
+            <span class="stat-num">{{ totalbaobao }}</span>
             <span class="stat-label">声抱抱</span>
           </div>
           <div class="stat-divider"></div>
@@ -80,10 +80,10 @@
             v-for="story in filteredStories"
             :key="story.id"
             :story="story"
-            :liked="likedIds.has(story.id)"
-            :xiatoud="xiatouIds.has(story.id)"
+            :liked="isLiked(story.id)"
+            :baobaod="isBaobaod(story.id)"
             @like="toggleLike"
-            @xiatou="toggleXiatou"
+            @baobao="togglebaobao"
           />
         </TransitionGroup>
       </div>
@@ -94,11 +94,17 @@
         <button class="clear-filter-btn" @click="activeTag = null">清除筛选</button>
       </div>
     </section>
+
+    <!-- 浮动新建按钮 -->
+    <NuxtLink to="/create" class="create-fab" title="我也想写一条">
+      <span class="fab-icon">✍️</span>
+      <span class="fab-text">写一条</span>
+    </NuxtLink>
   </div>
 </template>
 
 <script setup lang="ts">
-const { stories, likedIds, xiatouIds, toggleLike, toggleXiatou } = useStories()
+const { stories, toggleLike, togglebaobao, isLiked, isBaobaod } = useStories()
 
 // 标签筛选
 const activeTag = ref<string | null>(null)
@@ -115,9 +121,7 @@ const visibleTags = computed(() =>
   filterExpanded.value ? allTags.value : allTags.value.slice(0, FILTER_LIMIT)
 )
 
-const hiddenCount = computed(() =>
-  Math.max(0, allTags.value.length - FILTER_LIMIT)
-)
+const hiddenCount = computed(() => Math.max(0, allTags.value.length - FILTER_LIMIT))
 
 const filteredStories = computed(() => {
   if (!activeTag.value || activeTag.value === '全部') return stories.value
@@ -133,8 +137,8 @@ const toggleTag = (tag: string) => {
 }
 
 // 统计数据
-const totalXiatou = computed(() =>
-  stories.value.reduce((acc, s) => acc + s.xiatou, 0).toLocaleString('zh-CN')
+const totalbaobao = computed(() =>
+  stories.value.reduce((acc, s) => acc + s.baobao, 0).toLocaleString('zh-CN')
 )
 const totalLikes = computed(() =>
   stories.value.reduce((acc, s) => acc + s.likes, 0).toLocaleString('zh-CN')
@@ -173,7 +177,8 @@ const decorEmojis = [
 <style scoped lang="scss">
 .stories-page {
   min-height: 100vh;
-  padding-top: 70px; /* header 高度 */
+  padding-top: 70px;
+  padding-bottom: 100px;
   background: var(--theme-bgc);
 }
 
@@ -452,6 +457,71 @@ const decorEmojis = [
 
 .clear-filter-btn:hover {
   background: rgba(var(--theme-primary-rgb), 0.1);
+}
+
+/* ====== 浮动新建按钮 ====== */
+.create-fab {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 20px -3px rgba(var(--theme-primary-rgb), 0.5);
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  .fab-icon {
+    font-size: 1.2rem;
+  }
+
+  &:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 30px -3px rgba(var(--theme-primary-rgb), 0.6);
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(1.02);
+  }
+}
+
+/* 响应式浮动按钮 */
+@media (max-width: 768px) {
+  .create-fab {
+    right: 1.5rem;
+    bottom: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+
+    .fab-icon {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .create-fab {
+    right: 1rem;
+    bottom: 1rem;
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+    gap: 0.35rem;
+
+    .fab-text {
+      display: none;
+    }
+
+    .fab-icon {
+      font-size: 1.25rem;
+    }
+  }
 }
 
 /* 响应式 Hero */

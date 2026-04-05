@@ -1,5 +1,5 @@
 export interface Story {
-  id: number
+  id: string | number
   category: string
   emoji: string
   title: string
@@ -7,61 +7,188 @@ export interface Story {
   content: string
   tags: string[]
   likes: number
-  xiatou: number
+  baobao: number
   date: string
 }
 
 type StoryData = Omit<Story, 'id'>
 
-// 自动扫描 app/data/*.json，按文件名排序后依次赋 id（从 1 开始）
 const modules = import.meta.glob<StoryData>('../data/*.json', {
   eager: true,
   import: 'default',
 })
 
-const storiesData: Story[] = Object.entries(modules)
+const staticStories: Story[] = Object.entries(modules)
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, data], index) => ({ ...data, id: index + 1 }))
 
 export const useStories = () => {
-  const stories = useState('stories', () => storiesData.map(s => ({ ...s })))
+  const stories = useState<Story[]>('stories', () => [])
+  const likedIds = useState<Set<string | number>>('likedIds', () => new Set())
+  const baobaoIds = useState<Set<string | number>>('baobaoIds', () => new Set())
+  const loaded = useState('storiesLoaded', () => false)
+  const loading = useState('storiesLoading', () => false)
+  const hydrated = useState('storiesHydrated', () => false)
 
-  // 用户已点赞/下头的 id 集合（session 级别）
-  const likedIds = useState<Set<number>>('likedIds', () => new Set<number>())
-  const xiatouIds = useState<Set<number>>('xiatouIds', () => new Set<number>())
+  const loadStorage = () => {
+    if (hydrated.value || !import.meta.client) return
 
-  const toggleLike = (id: number) => {
-    const story = stories.value.find(s => s.id === id)
-    if (!story) return
-    if (likedIds.value.has(id)) {
-      likedIds.value.delete(id)
-      story.likes--
-    } else {
-      likedIds.value.add(id)
-      story.likes++
+    try {
+      const storedLikes = localStorage.getItem('likedIds')
+      const storedBaobao = localStorage.getItem('baobaoIds')
+
+      if (storedLikes) {
+        likedIds.value = new Set(JSON.parse(storedLikes))
+      }
+      if (storedBaobao) {
+        baobaoIds.value = new Set(JSON.parse(storedBaobao))
+      }
+    } catch {
+      // ignore
+    }
+
+    hydrated.value = true
+  }
+
+  const saveStorage = () => {
+    if (!import.meta.client) return
+    localStorage.setItem('likedIds', JSON.stringify([...likedIds.value]))
+    localStorage.setItem('baobaoIds', JSON.stringify([...baobaoIds.value]))
+  }
+
+  const fetchStories = async () => {
+    if (loaded.value || loading.value) return
+
+    loading.value = true
+    try {
+      const response = await $fetch('/api/stories', {
+        query: { limit: 1000 },
+      })
+
+      if (response.code === 200 && response.data.list.length > 0) {
+        stories.value = response.data.list
+        loaded.value = true
+      } else {
+        stories.value = staticStories
+        loaded.value = true
+      }
+    } catch {
+      stories.value = staticStories
+      loaded.value = true
+    } finally {
+      loading.value = false
     }
   }
 
-  const toggleXiatou = (id: number) => {
+  const refresh = async () => {
+    loaded.value = false
+    loading.value = false
+    await fetchStories()
+  }
+
+  const toggleLike = async (id: string | number) => {
     const story = stories.value.find(s => s.id === id)
     if (!story) return
-    if (xiatouIds.value.has(id)) {
-      xiatouIds.value.delete(id)
-      story.xiatou--
+
+    const isLiked = likedIds.value.has(id)
+
+    if (typeof id === 'string') {
+      try {
+        const response = await $fetch<{ code: number; data: { likes: number } }>(
+          `/api/stories/${id}/like`,
+          {
+            method: 'POST',
+            body: { action: isLiked ? 'remove' : 'add' },
+          }
+        )
+        if (response.code === 200) {
+          story.likes = response.data.likes
+          if (isLiked) {
+            likedIds.value.delete(id)
+          } else {
+            likedIds.value.add(id)
+          }
+          saveStorage()
+        }
+      } catch {
+        // ignore
+      }
     } else {
-      xiatouIds.value.add(id)
-      story.xiatou++
+      if (isLiked) {
+        likedIds.value.delete(id)
+        story.likes--
+      } else {
+        likedIds.value.add(id)
+        story.likes++
+      }
     }
   }
 
-  const getStory = (id: number) => stories.value.find(s => s.id === id)
+  const togglebaobao = async (id: string | number) => {
+    const story = stories.value.find(s => s.id === id)
+    if (!story) return
+
+    const isBaobaod = baobaoIds.value.has(id)
+
+    if (typeof id === 'string') {
+      try {
+        const response = await $fetch<{ code: number; data: { baobao: number } }>(
+          `/api/stories/${id}/baobao`,
+          {
+            method: 'POST',
+            body: { action: isBaobaod ? 'remove' : 'add' },
+          }
+        )
+        if (response.code === 200) {
+          story.baobao = response.data.baobao
+          if (isBaobaod) {
+            baobaoIds.value.delete(id)
+          } else {
+            baobaoIds.value.add(id)
+          }
+          saveStorage()
+        }
+      } catch {
+        // ignore
+      }
+    } else {
+      if (isBaobaod) {
+        baobaoIds.value.delete(id)
+        story.baobao--
+      } else {
+        baobaoIds.value.add(id)
+        story.baobao++
+      }
+    }
+  }
+
+  const getStory = (id: string | number) => stories.value.find(s => s.id === id)
+
+  const isLiked = (id: string | number) => hydrated.value && likedIds.value.has(id)
+  const isBaobaod = (id: string | number) => hydrated.value && baobaoIds.value.has(id)
+
+  if (import.meta.client) {
+    onMounted(() => {
+      loadStorage()
+    })
+  }
+
+  if (!loaded.value && !loading.value) {
+    fetchStories()
+  }
 
   return {
     stories,
     likedIds,
-    xiatouIds,
+    baobaoIds,
+    loading,
+    hydrated,
     toggleLike,
-    toggleXiatou,
+    togglebaobao,
     getStory,
+    fetchStories,
+    refresh,
+    isLiked,
+    isBaobaod,
   }
 }

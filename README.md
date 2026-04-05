@@ -164,7 +164,7 @@ pnpm generate
   "content": "完整故事内容...",
   "tags": ["标签1", "标签2"],
   "likes": 0,
-  "xiatou": 0,
+  "baobao": 0,
   "date": "2024-01-01"
 }
 ```

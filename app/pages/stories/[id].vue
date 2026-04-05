@@ -1,7 +1,13 @@
 <template>
   <div class="detail-page">
+    <!-- 加载中 -->
+    <div v-if="loading" class="loading-state">
+      <span class="loading-emoji">🌀</span>
+      <p>加载中...</p>
+    </div>
+
     <!-- 404 -->
-    <div v-if="!story" class="not-found">
+    <div v-else-if="!story" class="not-found">
       <span class="not-found-emoji">🤷</span>
       <h2>故事不存在</h2>
       <NuxtLink to="/" class="back-link">← 返回首页</NuxtLink>
@@ -16,18 +22,12 @@
         </NuxtLink>
 
         <div class="story-nav">
-          <NuxtLink
-            v-if="prevStory"
-            :to="`/stories/${prevStory.id}`"
-            class="nav-btn"
-            title="上一篇"
-          >‹ 上一篇</NuxtLink>
-          <NuxtLink
-            v-if="nextStory"
-            :to="`/stories/${nextStory.id}`"
-            class="nav-btn"
-            title="下一篇"
-          >下一篇 ›</NuxtLink>
+          <NuxtLink v-if="prevStory" :to="`/stories/${prevStory.id}`" class="nav-btn" title="上一篇"
+            >‹ 上一篇</NuxtLink
+          >
+          <NuxtLink v-if="nextStory" :to="`/stories/${nextStory.id}`" class="nav-btn" title="下一篇"
+            >下一篇 ›</NuxtLink
+          >
         </div>
       </div>
 
@@ -54,7 +54,10 @@
             v-for="(paragraph, index) in paragraphs"
             :key="index"
             class="paragraph"
-            :class="{ 'is-quote': isQuote(paragraph), 'is-conclusion': isConclusion(paragraph, index) }"
+            :class="{
+              'is-quote': isQuote(paragraph),
+              'is-conclusion': isConclusion(paragraph, index),
+            }"
           >
             {{ paragraph }}
           </p>
@@ -74,18 +77,21 @@
             </button>
 
             <button
-              class="interact-btn btn-xiatou"
-              :class="{ active: xiatoud }"
-              @click="toggleXiatou(story.id)"
+              class="interact-btn btn-baobao"
+              :class="{ active: baobaod }"
+              @click="togglebaobao(story.id)"
             >
               <span class="interact-icon">🫂</span>
               <span class="interact-label">给个抱抱</span>
-              <span class="interact-count">{{ story.xiatou.toLocaleString('zh-CN') }}</span>
+              <span class="interact-count">{{ story.baobao.toLocaleString('zh-CN') }}</span>
             </button>
           </div>
 
           <p class="interaction-hint">这里没有人认识你，说出来就好了</p>
         </footer>
+
+        <!-- 评论区 -->
+        <Comments :story-id="String(story.id)" />
       </article>
 
       <!-- 其他故事推荐 -->
@@ -96,10 +102,10 @@
             v-for="s in relatedStories"
             :key="s.id"
             :story="s"
-            :liked="likedIds.has(s.id)"
-            :xiatoud="xiatouIds.has(s.id)"
+            :liked="isLiked(s.id)"
+            :baobaod="isBaobaod(s.id)"
             @like="toggleLike"
-            @xiatou="toggleXiatou"
+            @baobao="togglebaobao"
           />
         </div>
       </section>
@@ -109,20 +115,29 @@
 
 <script setup lang="ts">
 const route = useRoute()
-const { stories, likedIds, xiatouIds, toggleLike, toggleXiatou, getStory } = useStories()
+const { stories, loading, toggleLike, togglebaobao, getStory, fetchStories, isLiked, isBaobaod } =
+  useStories()
 
-const id = computed(() => Number(route.params.id))
+const id = computed(() => {
+  const param = route.params.id as string
+  return isNaN(Number(param)) ? param : Number(param)
+})
 const story = computed(() => getStory(id.value))
 
-const liked = computed(() => likedIds.value.has(id.value))
-const xiatoud = computed(() => xiatouIds.value.has(id.value))
+const liked = computed(() => isLiked(id.value))
+const baobaod = computed(() => isBaobaod(id.value))
+
+onMounted(async () => {
+  await fetchStories()
+})
 
 // 正文段落拆分
-const paragraphs = computed(() =>
-  story.value?.content
-    .split('\n')
-    .map(p => p.trim())
-    .filter(p => p.length > 0) ?? []
+const paragraphs = computed(
+  () =>
+    story.value?.content
+      .split('\n')
+      .map(p => p.trim())
+      .filter(p => p.length > 0) ?? []
 )
 
 // 判断是否为引用段落（用「」包裹）
@@ -142,13 +157,11 @@ const nextStory = computed(() =>
 )
 
 // 相关推荐（取其他故事前 3 篇）
-const relatedStories = computed(() =>
-  stories.value.filter(s => s.id !== id.value).slice(0, 3)
-)
+const relatedStories = computed(() => stories.value.filter(s => s.id !== id.value).slice(0, 3))
 
 // SEO
 useHead({
-  title: computed(() => story.value ? `${story.value.title} — 渣男语录` : '渣男语录'),
+  title: computed(() => (story.value ? `${story.value.title} — 心灵港湾` : '心灵港湾')),
 })
 </script>
 
@@ -156,6 +169,35 @@ useHead({
 .detail-page {
   min-height: 100vh;
   padding-top: 70px;
+}
+
+/* 加载中 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: calc(100vh - 70px);
+  color: rgba(var(--theme-primary-rgb), 0.5);
+}
+
+.loading-emoji {
+  font-size: 3rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-state p {
+  font-size: 1rem;
 }
 
 /* 404 */
@@ -402,13 +444,13 @@ useHead({
   transform: scale(1.04);
 }
 
-.btn-xiatou {
+.btn-baobao {
   color: rgba(var(--theme-secondary-rgb), 0.7);
   border-color: rgba(var(--theme-secondary-rgb), 0.18);
 }
 
-.btn-xiatou:hover,
-.btn-xiatou.active {
+.btn-baobao:hover,
+.btn-baobao.active {
   background: rgba(var(--theme-secondary-rgb), 0.1);
   border-color: var(--theme-secondary);
   color: var(--theme-secondary);

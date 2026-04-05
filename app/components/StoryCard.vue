@@ -34,14 +34,14 @@
       </button>
 
       <button
-        class="action-btn btn-xiatou"
-        :class="{ active: xiatoud }"
-        @click="$emit('xiatou', story.id)"
-        :title="xiatoud ? '取消抱抱' : '给一个抱抱'"
+        class="action-btn btn-baobao"
+        :class="{ active: baobaod }"
+        @click="$emit('baobao', story.id)"
+        :title="baobaod ? '取消抱抱' : '给一个抱抱'"
       >
         <span class="btn-icon">🫂</span>
         <span class="btn-label">抱抱</span>
-        <span class="btn-count">{{ formatCount(story.xiatou) }}</span>
+        <span class="btn-count">{{ formatCount(story.baobao) }}</span>
       </button>
 
       <span class="read-more">阅读全文 →</span>
@@ -55,12 +55,12 @@ import type { Story } from '~/composables/useStories'
 const props = defineProps<{
   story: Story
   liked: boolean
-  xiatoud: boolean
+  baobaod: boolean
 }>()
 
 defineEmits<{
   like: [id: number]
-  xiatou: [id: number]
+  baobao: [id: number]
 }>()
 
 const router = useRouter()
@@ -246,13 +246,13 @@ const formatCount = (n: number) => {
   color: var(--theme-primary);
 }
 
-.btn-xiatou {
+.btn-baobao {
   color: rgba(var(--theme-secondary-rgb), 0.7);
   border-color: rgba(var(--theme-secondary-rgb), 0.15);
 }
 
-.btn-xiatou:hover,
-.btn-xiatou.active {
+.btn-baobao:hover,
+.btn-baobao.active {
   background: rgba(var(--theme-secondary-rgb), 0.1);
   border-color: var(--theme-secondary);
   color: var(--theme-secondary);

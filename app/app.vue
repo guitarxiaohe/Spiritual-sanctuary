@@ -10,11 +10,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useSystemStore } from './stores'
-
-const systemStore = useSystemStore()
+const { isDark } = useTheme()
 
 const elementLocale = computed(() => {
-  return systemStore.theme === 'dark' ? 'zh-cn' : 'en'
+  return isDark.value ? 'zh-cn' : 'en'
 })
 </script>

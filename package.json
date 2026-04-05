@@ -2,6 +2,11 @@
   "name": "nuxt-app",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -14,11 +19,15 @@
     "@nuxt/image": "2.0.0",
     "@nuxt/ui": "4.6.0",
     "@pinia/nuxt": "^0.11.3",
+    "@vueuse/core": "^14.2.1",
+    "@vueuse/nuxt": "^14.2.1",
     "add": "^2.0.6",
+    "better-sqlite3": "^11.8.1",
     "module": "^2.0.0",
     "nuxi": "^3.34.0",
     "nuxt": "^4.4.2",
     "pinia": "^3.0.4",
+    "uuid": "^11.1.0",
     "vue": "^3.5.31",
     "vue-router": "^5.0.4"
   },
@@ -26,6 +35,9 @@
     "@element-plus/icons-vue": "^2.3.2",
     "@element-plus/nuxt": "^1.1.5",
     "@nuxtjs/color-mode": "^4.0.0",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.0.0",
+    "@types/uuid": "^10.0.0",
     "element-plus": "^2.13.6",
     "sass": "^1.98.0"
   }

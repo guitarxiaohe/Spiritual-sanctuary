@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
-  modules: ['@element-plus/nuxt', '@pinia/nuxt', '@nuxtjs/color-mode'],
+  srcDir: 'app',
+  modules: ['@element-plus/nuxt', '@pinia/nuxt', '@nuxtjs/color-mode', '@vueuse/nuxt'],
   css: ['element-plus/dist/index.css', 'assets/css/index.scss'],
   runtimeConfig: {
     public: {

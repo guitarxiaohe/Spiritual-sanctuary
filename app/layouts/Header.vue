@@ -1,7 +1,6 @@
 <template>
   <header class="navbar-3d">
     <div class="nav-container">
-      <!-- Logo区域 -->
       <div class="logo" @click="scrollToTop">
         <div class="logo-3d">
           <span class="logo-emoji">🫧</span>
@@ -9,7 +8,6 @@
         </div>
       </div>
 
-      <!-- 桌面端导航链接 -->
       <nav class="nav-links">
         <a
           v-for="item in navItems"
@@ -23,20 +21,17 @@
         </a>
       </nav>
 
-      <!-- 右侧控制区：主题切换 + 移动端菜单按钮 -->
       <div class="nav-actions">
-        <!-- 主题快速切换（循环：亮色→暗色→跟随系统） -->
         <button
           class="theme-toggle"
-          @click="systemStore.toggleTheme()"
-          :title="`当前：${themeModeLabel}`"
+          @click="toggleDark()"
+          :title="isDark ? '切换到亮色模式' : '切换到暗色模式'"
         >
           <div class="toggle-3d">
-            <span class="toggle-icon">{{ themeModeEmoji }}</span>
+            <span class="toggle-icon">{{ isDark ? '🌙' : '☀️' }}</span>
           </div>
         </button>
 
-        <!-- 移动端菜单按钮 -->
         <button class="mobile-menu-btn" @click="toggleMobileMenu">
           <span class="menu-icon" :class="{ open: mobileMenuOpen }">
             <span></span><span></span><span></span>
@@ -45,7 +40,6 @@
       </div>
     </div>
 
-    <!-- 移动端下拉菜单 -->
     <Transition name="mobile-menu">
       <div v-if="mobileMenuOpen" class="mobile-menu">
         <a
@@ -66,46 +60,31 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useSystemStore } from '../stores'
 
-// 路由相关
 const router = useRouter()
 const route = useRoute()
 const currentPath = computed(() => route.path)
 
-// 导航项配置
 const navItems = [
   { name: '首页', path: '/' },
+  { name: '发布故事', path: '/create' },
 ]
 
-// 主题管理
-const systemStore = useSystemStore()
+const { isDark, toggleDark } = useTheme()
 
-const themeModeEmoji = computed(() => ({
-  light: '☀️', dark: '🌙', system: '💻',
-})[systemStore.themeMode] ?? '☀️')
-
-const themeModeLabel = computed(() => ({
-  light: '亮色', dark: '暗色', system: '跟随系统',
-})[systemStore.themeMode] ?? '')
-
-// 移动端菜单
 const mobileMenuOpen = ref(false)
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
-  // 菜单打开时禁止body滚动
   document.body.style.overflow = mobileMenuOpen.value ? 'hidden' : ''
 }
 
-// 导航跳转
 const navigate = path => {
   router.push(path)
   mobileMenuOpen.value = false
   document.body.style.overflow = ''
 }
 
-// 滚动到顶部（Logo点击）
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
   if (currentPath.value !== '/') {
@@ -113,7 +92,6 @@ const scrollToTop = () => {
   }
 }
 
-// 监听窗口resize，大屏幕时自动关闭移动菜单
 const handleResize = () => {
   if (window.innerWidth > 768 && mobileMenuOpen.value) {
     mobileMenuOpen.value = false
@@ -122,7 +100,6 @@ const handleResize = () => {
 }
 
 onMounted(() => {
-  // initTheme 已在 plugins/theme.client.ts 中提前执行，此处只注册 resize 监听
   window.addEventListener('resize', handleResize)
 })
 
@@ -133,7 +110,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 基础样式重置 */
 * {
   margin: 0;
   padding: 0;
@@ -153,7 +129,6 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-/* 3D透视容器 */
 .nav-container {
   max-width: 1280px;
   margin: 0 auto;
@@ -163,7 +138,6 @@ onUnmounted(() => {
   perspective: 1000px;
 }
 
-/* Logo 3D样式 */
 .logo {
   cursor: pointer;
   transform-style: preserve-3d;
@@ -195,7 +169,6 @@ onUnmounted(() => {
   letter-spacing: 0.02em;
 }
 
-/* 桌面导航链接 */
 .nav-links {
   display: flex;
   gap: 2rem;
@@ -248,14 +221,12 @@ onUnmounted(() => {
   height: 3px;
 }
 
-/* 右侧操作区 */
 .nav-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* 3D主题切换按钮 */
 .theme-toggle {
   background: none;
   border: none;
@@ -296,7 +267,6 @@ onUnmounted(() => {
   transform: scale(1.2) rotate(12deg);
 }
 
-/* 移动端菜单按钮 */
 .mobile-menu-btn {
   display: none;
   background: none;
@@ -339,7 +309,6 @@ onUnmounted(() => {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* 移动端下拉菜单 */
 .mobile-menu {
   position: fixed;
   top: 70px;
@@ -375,7 +344,6 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* 移动菜单过渡动画 */
 .mobile-menu-enter-active,
 .mobile-menu-leave-active {
   transition: all 0.3s ease;
@@ -387,7 +355,6 @@ onUnmounted(() => {
   transform: translateY(-20px);
 }
 
-/* 响应式 */
 @media (max-width: 768px) {
   .navbar-3d {
     padding: 0.75rem 1rem;

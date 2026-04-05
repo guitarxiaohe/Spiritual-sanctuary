@@ -1,27 +1,61 @@
-import type { ThemeMode, ColorScheme } from '~/stores/modules/system/type'
+import { useDark, useToggle } from '@vueuse/core'
+import type { ColorScheme } from '~/stores/modules/system/type'
 
-/**
- * 全局主题 composable
- * 任何组件 import 或直接调用即可控制主题
- *
- * 示例：
- *   const { isDark, themeMode, setThemeMode, setColorScheme } = useTheme()
- */
 export const useTheme = () => {
   const store = useSystemStore()
 
+  const isDark = useDark({
+    selector: 'html',
+    attribute: 'data-theme',
+    valueDark: 'dark',
+    valueLight: 'light',
+  })
+
+  const toggleDark = useToggle(isDark)
+
+  const isTransitioning = ref(false)
+
+  const toggleThemeWithTransition = async () => {
+    if (isTransitioning.value) return
+
+    const goingDark = !isDark.value
+    isTransitioning.value = true
+
+    const overlay = document.createElement('div')
+    overlay.className = 'theme-transition-overlay'
+    overlay.setAttribute('data-direction', goingDark ? 'to-dark' : 'to-light')
+
+    const sunMoon = document.createElement('div')
+    sunMoon.className = 'theme-transition-icon'
+    sunMoon.innerHTML = goingDark ? '🌙' : '☀️'
+    overlay.appendChild(sunMoon)
+
+    document.body.appendChild(overlay)
+
+    await new Promise(r => setTimeout(r, 50))
+
+    overlay.classList.add('expanding')
+
+    await new Promise(r => setTimeout(r, 400))
+
+    toggleDark()
+
+    await new Promise(r => setTimeout(r, 50))
+
+    overlay.classList.remove('expanding')
+    overlay.classList.add('collapsing')
+
+    await new Promise(r => setTimeout(r, 400))
+
+    overlay.remove()
+    isTransitioning.value = false
+  }
+
   return {
-    /** 当前实际生效的明暗（由 themeMode 推导） */
-    isDark: computed(() => store.isDark),
-    /** 用户选择的模式：'light' | 'dark' | 'system' */
-    themeMode: computed(() => store.themeMode),
-    /** 当前配色方案 */
+    isDark,
+    toggleDark: toggleThemeWithTransition,
+    isTransitioning,
     colorScheme: computed(() => store.colorScheme),
-    /** 设置模式 */
-    setThemeMode: (mode: ThemeMode) => store.setThemeMode(mode),
-    /** 切换明暗（light→dark→system 循环） */
-    toggleTheme: () => store.toggleTheme(),
-    /** 设置配色方案 */
     setColorScheme: (scheme: ColorScheme) => store.setColorScheme(scheme),
   }
 }

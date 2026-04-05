@@ -1,33 +1,25 @@
 <template>
   <div class="ts-root" ref="rootRef">
-    <!-- ── 主按钮：大图标 + 点击循环模式 ── -->
     <button
       class="ts-trigger"
-      :class="{ 'panel-open': panelOpen }"
-      @click="cycleMode"
-      :title="`当前：${modeLabel} — 点击切换`"
+      :class="{ 'panel-open': panelOpen, 'is-transitioning': isTransitioning }"
+      @click="toggleDark()"
+      :title="isDark ? '切换到亮色模式' : '切换到暗色模式'"
     >
-      <!-- 滚动舞台：overflow:hidden 保证图标只在圆圈内可见 -->
       <div class="ts-stage">
-        <Transition :name="`roll-${rollDir}`">
-          <span :key="store.themeMode" class="ts-icon" aria-hidden="true">
-            {{ modeEmoji[store.themeMode] }}
+        <Transition name="roll-fwd">
+          <span :key="isDark ? 'dark' : 'light'" class="ts-icon" aria-hidden="true">
+            {{ isDark ? '🌙' : '☀️' }}
           </span>
         </Transition>
       </div>
 
-      <!-- 底部模式点指示器 -->
       <div class="ts-dots">
-        <span
-          v-for="m in modeDefs"
-          :key="m.mode"
-          class="ts-dot"
-          :class="{ active: store.themeMode === m.mode }"
-        />
+        <span class="ts-dot" :class="{ active: !isDark }" />
+        <span class="ts-dot" :class="{ active: isDark }" />
       </div>
     </button>
 
-    <!-- ── 展开按钮（小箭头） ── -->
     <button
       class="ts-expand-btn"
       @click.stop="panelOpen = !panelOpen"
@@ -51,42 +43,28 @@
       </svg>
     </button>
 
-    <!-- ── 展开面板 ── -->
     <Transition name="ts-panel">
       <div v-if="panelOpen" class="ts-panel" @click.stop>
-        <!-- 三模式选择器 -->
-        <div class="ts-modes">
-          <button
-            v-for="m in modeDefs"
-            :key="m.mode"
-            class="ts-mode-btn"
-            :class="{ active: store.themeMode === m.mode }"
-            @click="selectMode(m.mode)"
-          >
-            <span class="mode-emoji">{{ m.emoji }}</span>
-            <span class="mode-label">{{ m.label }}</span>
-          </button>
-
-          <!-- 滑动指示条 -->
-          <div class="mode-slider" :style="sliderStyle" />
+        <div class="ts-mode-info">
+          <span class="mode-emoji">{{ isDark ? '🌙' : '☀️' }}</span>
+          <span class="mode-label">{{ isDark ? '暗色模式' : '亮色模式' }}</span>
         </div>
 
         <div class="ts-sep" />
 
-        <!-- 配色方案 -->
         <div class="ts-colors">
           <button
             v-for="s in schemeDefs"
             :key="s.id"
             class="ts-color-dot"
-            :class="{ active: store.colorScheme === s.id }"
+            :class="{ active: colorScheme === s.id }"
             :style="{ background: s.gradient }"
             :title="s.name"
-            @click="store.setColorScheme(s.id)"
+            @click="setColorScheme(s.id)"
           >
             <Transition name="check-fade">
               <svg
-                v-if="store.colorScheme === s.id"
+                v-if="colorScheme === s.id"
                 class="dot-check"
                 width="12"
                 height="12"
@@ -103,7 +81,6 @@
       </div>
     </Transition>
 
-    <!-- 遮罩层（点击关闭面板） -->
     <Teleport to="body">
       <div v-if="panelOpen" class="ts-backdrop" @click="panelOpen = false" />
     </Teleport>
@@ -111,72 +88,23 @@
 </template>
 
 <script setup lang="ts">
-import type { ThemeMode, ColorScheme } from '~/stores/modules/system/type'
+import type { ColorScheme } from '~/stores/modules/system/type'
 
-const store = useSystemStore()
+const { isDark, toggleDark, isTransitioning, colorScheme, setColorScheme } = useTheme()
 
-// ── 模式定义 ──
-const modeDefs: { mode: ThemeMode; emoji: string; label: string }[] = [
-  { mode: 'light', emoji: '☀️', label: '亮色' },
-  { mode: 'dark', emoji: '🌙', label: '暗色' },
-  { mode: 'system', emoji: '💻', label: '跟随' },
-]
-
-const modeEmoji: Record<ThemeMode, string> = {
-  light: '☀️',
-  dark: '🌙',
-  system: '💻',
-}
-
-const modeLabel = computed(() => modeDefs.find(m => m.mode === store.themeMode)?.label ?? '')
-
-// ── 配色方案 ──
 const schemeDefs: { id: ColorScheme; name: string; gradient: string }[] = [
+  { id: 'ocean', name: 'Ocean', gradient: 'linear-gradient(135deg,#006bea,#06b6d4)' },
+  { id: 'green', name: 'Green', gradient: 'linear-gradient(135deg,#16a34a,#84cc16)' },
   { id: 'indigo', name: 'Indigo', gradient: 'linear-gradient(135deg,#6366f1,#f43f5e)' },
   { id: 'rose', name: 'Rose', gradient: 'linear-gradient(135deg,#e11d48,#a855f7)' },
   { id: 'emerald', name: 'Emerald', gradient: 'linear-gradient(135deg,#059669,#0ea5e9)' },
   { id: 'amber', name: 'Amber', gradient: 'linear-gradient(135deg,#d97706,#dc2626)' },
 ]
 
-// ── 滚动方向 ──
-type RollDir = 'fwd' | 'bwd'
-const rollDir = ref<RollDir>('fwd')
-const modeOrder: ThemeMode[] = ['light', 'dark', 'system']
-
-const calcDir = (from: ThemeMode, to: ThemeMode): RollDir => {
-  const fi = modeOrder.indexOf(from)
-  const ti = modeOrder.indexOf(to)
-  // 正向：index 增大，或从末位(system)跳回首位(light)
-  return ti > fi || (fi === 2 && ti === 0) ? 'fwd' : 'bwd'
-}
-
-// 主按钮：循环切换
-const cycleMode = () => {
-  const cur = store.themeMode
-  const next = modeOrder[(modeOrder.indexOf(cur) + 1) % modeOrder.length] || 'dark'
-  rollDir.value = 'fwd' // 循环永远是正向
-  store.setThemeMode(next)
-}
-
-// 面板按钮：直接选择
-const selectMode = (mode: ThemeMode) => {
-  if (mode === store.themeMode) return
-  rollDir.value = calcDir(store.themeMode, mode)
-  store.setThemeMode(mode)
-}
-
-// ── 面板控制 ──
 const panelOpen = ref(false)
-
-// ── 模式滑块位置 ──
-const sliderStyle = computed(() => {
-  const idx = modeOrder.indexOf(store.themeMode)
-  return { transform: `translateX(${idx * 100}%)` }
-})
 </script>
 
 <style scoped>
-/* ━━━ 根容器 ━━━ */
 .ts-root {
   position: fixed;
   top: 1rem;
@@ -189,7 +117,6 @@ const sliderStyle = computed(() => {
   user-select: none;
 }
 
-/* ━━━ 主触发按钮 ━━━ */
 .ts-trigger {
   position: relative;
   width: 58px;
@@ -229,7 +156,11 @@ const sliderStyle = computed(() => {
   background: rgba(var(--theme-primary-rgb), 0.14);
 }
 
-/* ── 图标滚动舞台 ── */
+.ts-trigger.is-transitioning {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
 .ts-stage {
   position: relative;
   width: 36px;
@@ -252,7 +183,6 @@ const sliderStyle = computed(() => {
   will-change: transform, opacity;
 }
 
-/* ── 三点指示器 ── */
 .ts-dots {
   display: flex;
   gap: 3.5px;
@@ -273,7 +203,6 @@ const sliderStyle = computed(() => {
   background: var(--theme-primary);
 }
 
-/* ━━━ 展开箭头按钮 ━━━ */
 .ts-expand-btn {
   width: 22px;
   height: 22px;
@@ -303,12 +232,11 @@ const sliderStyle = computed(() => {
   transform: rotate(180deg);
 }
 
-/* ━━━ 展开面板 ━━━ */
 .ts-panel {
   position: absolute;
   top: calc(100% + 0.6rem);
   right: 0;
-  width: 200px;
+  width: 280px;
   padding: 12px;
   border-radius: 16px;
   background: rgba(var(--theme-primary-rgb), 0.06);
@@ -325,71 +253,30 @@ const sliderStyle = computed(() => {
   border-color: rgba(var(--theme-primary-rgb), 0.2);
 }
 
-/* ── 模式选择器 ── */
-.ts-modes {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  border-radius: 10px;
-  overflow: hidden;
-  background: rgba(var(--theme-primary-rgb), 0.06);
-  border: 1px solid rgba(var(--theme-primary-rgb), 0.1);
-}
-
-/* 滑动指示条（在按钮下层） */
-.mode-slider {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: calc(100% / 3);
-  height: 100%;
-  background: rgba(var(--theme-primary-rgb), 0.14);
-  border-radius: 9px;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.ts-mode-btn {
-  position: relative;
-  z-index: 1;
+.ts-mode-info {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 8px 4px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: color 0.2s;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
 }
 
 .mode-emoji {
-  font-size: 1rem;
-  line-height: 1;
+  font-size: 1.2rem;
 }
 
 .mode-label {
-  font-size: 0.65rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(var(--theme-primary-rgb), 0.5);
-  transition: color 0.2s;
-}
-
-.ts-mode-btn.active .mode-label {
   color: var(--theme-primary);
-  font-weight: 700;
 }
 
-/* ── 分割线 ── */
 .ts-sep {
   height: 1px;
   background: rgba(var(--theme-primary-rgb), 0.08);
   margin: 10px 0;
 }
 
-/* ── 配色圆点 ── */
 .ts-colors {
   display: flex;
   justify-content: space-between;
@@ -427,17 +314,12 @@ const sliderStyle = computed(() => {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
 
-/* ━━━ 遮罩 ━━━ */
 .ts-backdrop {
   position: fixed;
   inset: 0;
   z-index: 997;
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   ROLLING ANIMATION — FORWARD (正方向滚动)
-   太阳/月亮 向右滚出，下一个从左滚入
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .roll-fwd-leave-active {
   animation: roll-exit-right 0.42s cubic-bezier(0.55, 0, 1, 0.45) forwards;
 }
@@ -475,48 +357,6 @@ const sliderStyle = computed(() => {
   }
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   ROLLING ANIMATION — BACKWARD (反方向滚动)
-   向左滚出，下一个从右滚入
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-.roll-bwd-leave-active {
-  animation: roll-exit-left 0.42s cubic-bezier(0.55, 0, 1, 0.45) forwards;
-}
-.roll-bwd-enter-active {
-  animation: roll-enter-right 0.42s cubic-bezier(0, 0.55, 0.45, 1) forwards;
-}
-
-@keyframes roll-exit-left {
-  0% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-    opacity: 1;
-  }
-  30% {
-    transform: translate(-10%, 8%) rotate(-120deg) scale(0.85);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-130%, 0) rotate(-360deg) scale(0.5);
-    opacity: 0;
-  }
-}
-
-@keyframes roll-enter-right {
-  0% {
-    transform: translate(130%, 0) rotate(360deg) scale(0.5);
-    opacity: 0;
-  }
-  70% {
-    transform: translate(8%, 8%) rotate(60deg) scale(0.9);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-    opacity: 1;
-  }
-}
-
-/* ━━━ 面板展开/收起 ━━━ */
 .ts-panel-enter-active {
   animation: panel-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
@@ -550,7 +390,6 @@ const sliderStyle = computed(() => {
   }
 }
 
-/* ━━━ 对勾淡入淡出 ━━━ */
 .check-fade-enter-active {
   transition: all 0.2s ease;
 }
@@ -563,7 +402,6 @@ const sliderStyle = computed(() => {
   transform: scale(0.5);
 }
 
-/* ━━━ 响应式 ━━━ */
 @media (max-width: 480px) {
   .ts-root {
     top: 0.75rem;
