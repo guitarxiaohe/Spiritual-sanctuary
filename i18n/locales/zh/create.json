@@ -1,0 +1,22 @@
+{
+  "category": "分类",
+  "mood": "心情表情",
+  "title": "标题",
+  "titlePlaceholder": "给故事起个名字...",
+  "content": "故事内容",
+  "contentPlaceholder": "写下你想说的...",
+  "tags": "标签",
+  "tagPlaceholder": "输入标签后按回车添加...",
+  "hotTags": "热门标签：",
+  "clear": "清空",
+  "submit": "发布故事",
+  "submitting": "发布中...",
+  "backHome": "← 返回首页",
+  "pageTitle": "分享你的故事",
+  "pageSubtitle": "这里没有人认识你，说出来就好了",
+  "rateLimit": "今日剩余发布次数：",
+  "success": "发布成功！",
+  "failed": "发布失败",
+  "failedRetry": "发布失败，请稍后重试",
+  "rateLimitExceeded": "操作过于频繁，请稍后再试"
+}

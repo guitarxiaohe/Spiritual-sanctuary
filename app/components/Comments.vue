@@ -1,14 +1,14 @@
 <template>
   <div class="comments-section">
     <div class="comments-header">
-      <h3 class="comments-title">评论 ({{ total }})</h3>
+      <h3 class="comments-title">{{ $t('page.comments.title') }} ({{ total }})</h3>
     </div>
 
     <div class="comment-input-wrapper">
       <textarea
         v-model="newComment"
         class="comment-input"
-        placeholder="写下你的想法..."
+        :placeholder="$t('page.comments.placeholder')"
         rows="3"
         maxlength="500"
       />
@@ -19,13 +19,13 @@
           :disabled="!newComment.trim() || submitting"
           @click="submitComment"
         >
-          {{ submitting ? '发布中...' : '发布' }}
+          {{ submitting ? $t('page.comments.submitting') : $t('page.comments.submit') }}
         </button>
       </div>
     </div>
 
     <div v-if="replyTo" class="reply-indicator">
-      <span>回复 {{ replyTo.nickname }}</span>
+      <span>{{ $t('page.comments.replyTo') }} {{ replyTo.nickname }}</span>
       <button class="cancel-reply" @click="cancelReply">×</button>
     </div>
 
@@ -38,7 +38,9 @@
             <span class="comment-time">{{ formatTime(comment.created_at) }}</span>
           </div>
           <p class="comment-text">{{ comment.content }}</p>
-          <button class="reply-btn" @click="setReplyTo(comment)">回复</button>
+          <button class="reply-btn" @click="setReplyTo(comment)">
+            {{ $t('page.comments.reply') }}
+          </button>
 
           <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
             <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
@@ -54,13 +56,13 @@
       </div>
 
       <div v-if="comments.length === 0" class="empty-comments">
-        <span class="empty-emoji">💭</span>
-        <p>还没有评论，来说点什么吧</p>
+        <span class="empty-emoji">{{ $t('page.comments.emptyEmoji') }}</span>
+        <p>{{ $t('page.comments.emptyText') }}</p>
       </div>
     </div>
 
     <button v-if="hasMore" class="load-more-btn" :disabled="loading" @click="loadMore">
-      {{ loading ? '加载中...' : '加载更多' }}
+      {{ loading ? $t('page.story.loading') : $t('page.comments.loadMore') }}
     </button>
   </div>
 </template>
@@ -80,6 +82,8 @@ interface Comment {
 const props = defineProps<{
   storyId: string
 }>()
+
+const { t } = useI18n()
 
 const comments = ref<Comment[]>([])
 const total = ref(0)
@@ -139,11 +143,11 @@ const submitComment = async () => {
       page.value = 1
       await fetchComments(1)
     } else {
-      alert(response.message || '评论失败')
+      alert(response.message || t('page.comments.failed'))
     }
   } catch (error) {
     console.error('评论失败:', error)
-    alert('评论失败，请稍后重试')
+    alert(t('page.comments.failed'))
   } finally {
     submitting.value = false
   }

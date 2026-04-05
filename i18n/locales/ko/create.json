@@ -1,0 +1,22 @@
+{
+  "category": "카테고리",
+  "mood": "기분",
+  "title": "제목",
+  "titlePlaceholder": "이야기에 이름을 붙여주세요...",
+  "content": "이야기 내용",
+  "contentPlaceholder": "하고 싶은 말을 쓰세요...",
+  "tags": "태그",
+  "tagPlaceholder": "태그를 입력하고 Enter를 누르세요...",
+  "hotTags": "인기 태그:",
+  "clear": "지우기",
+  "submit": "이야기 게시",
+  "submitting": "게시 중...",
+  "backHome": "← 홈으로 돌아가기",
+  "pageTitle": "당신의 이야기를 공유하세요",
+  "pageSubtitle": "여기서 아무도 당신을 몰라요, 그냥 말하면 돼요",
+  "rateLimit": "오늘 남은 게시 횟수:",
+  "success": "게시 성공!",
+  "failed": "게시 실패",
+  "failedRetry": "게시에 실패했습니다, 나중에 다시 시도해주세요",
+  "rateLimitExceeded": "요청이 너무 많습니다, 나중에 다시 시도해주세요"
+}

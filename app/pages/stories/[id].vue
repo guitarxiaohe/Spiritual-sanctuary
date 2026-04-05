@@ -3,14 +3,14 @@
     <!-- 加载中 -->
     <div v-if="loading" class="loading-state">
       <span class="loading-emoji">🌀</span>
-      <p>加载中...</p>
+      <p>{{ $t('page.story.loading') }}</p>
     </div>
 
     <!-- 404 -->
     <div v-else-if="!story" class="not-found">
       <span class="not-found-emoji">🤷</span>
-      <h2>故事不存在</h2>
-      <NuxtLink to="/" class="back-link">← 返回首页</NuxtLink>
+      <h2>{{ $t('page.story.noStory') }}</h2>
+      <NuxtLink to="/" class="back-link">{{ $t('page.story.backHome') }}</NuxtLink>
     </div>
 
     <template v-else>
@@ -18,15 +18,23 @@
       <div class="detail-topbar">
         <NuxtLink to="/" class="back-btn">
           <span class="back-arrow">←</span>
-          <span>返回语录</span>
+          <span>{{ $t('page.story.backHome') }}</span>
         </NuxtLink>
 
         <div class="story-nav">
-          <NuxtLink v-if="prevStory" :to="`/stories/${prevStory.id}`" class="nav-btn" title="上一篇"
-            >‹ 上一篇</NuxtLink
+          <NuxtLink
+            v-if="prevStory"
+            :to="`/stories/${prevStory.id}`"
+            class="nav-btn"
+            :title="$t('page.story.prevStory')"
+            >‹ {{ $t('page.story.prevStory') }}</NuxtLink
           >
-          <NuxtLink v-if="nextStory" :to="`/stories/${nextStory.id}`" class="nav-btn" title="下一篇"
-            >下一篇 ›</NuxtLink
+          <NuxtLink
+            v-if="nextStory"
+            :to="`/stories/${nextStory.id}`"
+            class="nav-btn"
+            :title="$t('page.story.nextStory')"
+            >{{ $t('page.story.nextStory') }} ›</NuxtLink
           >
         </div>
       </div>
@@ -72,7 +80,7 @@
               @click="toggleLike(story.id)"
             >
               <span class="interact-icon">💔</span>
-              <span class="interact-label">共鸣了</span>
+              <span class="interact-label">{{ $t('page.story.likes') }}</span>
               <span class="interact-count">{{ story.likes.toLocaleString('zh-CN') }}</span>
             </button>
 
@@ -82,12 +90,12 @@
               @click="togglebaobao(story.id)"
             >
               <span class="interact-icon">🫂</span>
-              <span class="interact-label">给个抱抱</span>
+              <span class="interact-label">{{ $t('page.story.baobao') }}</span>
               <span class="interact-count">{{ story.baobao.toLocaleString('zh-CN') }}</span>
             </button>
           </div>
 
-          <p class="interaction-hint">这里没有人认识你，说出来就好了</p>
+          <p class="interaction-hint">{{ $t('page.create.pageSubtitle') }}</p>
         </footer>
 
         <!-- 评论区 -->
@@ -96,7 +104,7 @@
 
       <!-- 其他故事推荐 -->
       <section v-if="relatedStories.length > 0" class="related-section">
-        <h2 class="related-title">还有人在说</h2>
+        <h2 class="related-title">{{ $t('page.story.relatedStories') }}</h2>
         <div class="related-grid">
           <StoryCard
             v-for="s in relatedStories"

@@ -1,0 +1,22 @@
+{
+  "category": "Category",
+  "mood": "Mood",
+  "title": "Title",
+  "titlePlaceholder": "Give your story a name...",
+  "content": "Story Content",
+  "contentPlaceholder": "Write what you want to say...",
+  "tags": "Tags",
+  "tagPlaceholder": "Enter tag and press Enter...",
+  "hotTags": "Popular tags:",
+  "clear": "Clear",
+  "submit": "Publish Story",
+  "submitting": "Publishing...",
+  "backHome": "← Back to Home",
+  "pageTitle": "Share Your Story",
+  "pageSubtitle": "No one knows you here, just say it",
+  "rateLimit": "Remaining posts today: ",
+  "success": "Published successfully!",
+  "failed": "Publishing failed",
+  "failedRetry": "Failed to publish, please try again later",
+  "rateLimitExceeded": "Too many requests, please try again later"
+}

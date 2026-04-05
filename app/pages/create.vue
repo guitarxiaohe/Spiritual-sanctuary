@@ -2,18 +2,22 @@
   <div class="create-page">
     <div class="create-container">
       <header class="create-header">
-        <NuxtLink to="/" class="back-link">← 返回首页</NuxtLink>
-        <h1 class="create-title">分享你的故事</h1>
-        <p class="create-subtitle">这里没有人认识你，说出来就好了</p>
+        <NuxtLink to="/" class="back-link">{{ $t('page.create.backHome') }}</NuxtLink>
+        <h1 class="create-title">{{ $t('page.create.pageTitle') }}</h1>
+        <p class="create-subtitle">{{ $t('page.create.pageSubtitle') }}</p>
         <div v-if="rateLimitInfo" class="rate-limit-info">
           <span class="rate-limit-badge">🛡️</span>
-          <span>今日剩余发布次数：{{ rateLimitInfo.remaining }}/{{ rateLimitInfo.limit }}</span>
+          <span
+            >{{ $t('page.create.rateLimit') }}{{ rateLimitInfo.remaining }}/{{
+              rateLimitInfo.limit
+            }}</span
+          >
         </div>
       </header>
 
       <form class="create-form" @submit.prevent="handleSubmit">
         <div class="form-group">
-          <label class="form-label">分类</label>
+          <label class="form-label">{{ $t('page.create.category') }}</label>
           <div class="category-grid">
             <button
               v-for="cat in categories"
@@ -30,7 +34,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">心情表情</label>
+          <label class="form-label">{{ $t('page.create.mood') }}</label>
           <div class="emoji-grid">
             <button
               v-for="emoji in emojis"
@@ -46,23 +50,23 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">标题</label>
+          <label class="form-label">{{ $t('page.create.title') }}</label>
           <input
             v-model="form.title"
             type="text"
             class="form-input"
-            placeholder="给故事起个名字..."
+            :placeholder="$t('page.create.titlePlaceholder')"
             maxlength="50"
           />
           <span class="char-count">{{ form.title.length }}/50</span>
         </div>
 
         <div class="form-group">
-          <label class="form-label">故事内容</label>
+          <label class="form-label">{{ $t('page.create.content') }}</label>
           <textarea
             v-model="form.content"
             class="form-textarea"
-            placeholder="写下你想说的..."
+            :placeholder="$t('page.create.contentPlaceholder')"
             rows="8"
             maxlength="2000"
           />
@@ -70,7 +74,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">标签</label>
+          <label class="form-label">{{ $t('page.create.tags') }}</label>
           <div class="tags-input-wrapper">
             <div class="selected-tags">
               <span v-for="tag in form.tags" :key="tag" class="selected-tag">
@@ -82,12 +86,12 @@
               v-model="tagInput"
               type="text"
               class="tag-input"
-              placeholder="输入标签后按回车添加..."
+              :placeholder="$t('page.create.tagPlaceholder')"
               @keydown.enter.prevent="addTag"
             />
           </div>
           <div class="suggested-tags">
-            <span class="suggest-label">热门标签：</span>
+            <span class="suggest-label">{{ $t('page.create.hotTags') }}</span>
             <button
               v-for="tag in suggestedTags"
               :key="tag"
@@ -102,13 +106,15 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-cancel" @click="resetForm">清空</button>
+          <button type="button" class="btn-cancel" @click="resetForm">
+            {{ $t('page.create.clear') }}
+          </button>
           <button
             type="submit"
             class="btn-submit"
             :disabled="!isFormValid || submitting || rateLimitInfo?.remaining === 0"
           >
-            {{ submitting ? '发布中...' : '发布故事' }}
+            {{ submitting ? $t('page.create.submitting') : $t('page.create.submit') }}
           </button>
         </div>
       </form>
@@ -117,20 +123,22 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
+
 interface RateLimitInfo {
   remaining: number
   limit: number
   used: number
 }
 
-const categories = [
-  { value: '经典语录', label: '经典语录', emoji: '💔' },
-  { value: '职场故事', label: '职场故事', emoji: '💼' },
-  { value: '家庭琐事', label: '家庭琐事', emoji: '🏠' },
-  { value: '友情岁月', label: '友情岁月', emoji: '🤝' },
-  { value: '恋爱心事', label: '恋爱心事', emoji: '💕' },
-  { value: '成长感悟', label: '成长感悟', emoji: '🌱' },
-]
+const categories = computed(() => [
+  { value: 'classic', label: t('page.categories.categories.classic'), emoji: '💔' },
+  { value: 'workplace', label: t('page.categories.categories.workplace'), emoji: '💼' },
+  { value: 'family', label: t('page.categories.categories.family'), emoji: '🏠' },
+  { value: 'friendship', label: t('page.categories.categories.friendship'), emoji: '🤝' },
+  { value: 'love', label: t('page.categories.categories.love'), emoji: '💕' },
+  { value: 'growth', label: t('page.categories.categories.growth'), emoji: '🌱' },
+])
 
 const emojis = ['💔', '😢', '😤', '😔', '🥺', '😭', '😡', '🤦', '😑', '💔', '🫂', '💪']
 
@@ -222,24 +230,24 @@ const handleSubmit = async () => {
     })
 
     if (response.code === 200) {
-      alert('发布成功！')
+      alert(t('page.create.success'))
       resetForm()
       const { refresh } = useStories()
       await refresh()
       navigateTo('/')
     } else if (response.code === 429) {
-      alert(response.message || '操作过于频繁，请稍后再试')
+      alert(response.message || t('page.create.rateLimitExceeded'))
       fetchRateLimit()
     } else {
-      alert(response.message || '发布失败')
+      alert(response.message || t('page.create.failed'))
     }
   } catch (error: any) {
     console.error('发布失败:', error)
     if (error?.response?.status === 429) {
-      alert('操作过于频繁，请稍后再试')
+      alert(t('page.create.rateLimitExceeded'))
       fetchRateLimit()
     } else {
-      alert('发布失败，请稍后重试')
+      alert(t('page.create.failedRetry'))
     }
   } finally {
     submitting.value = false
@@ -316,6 +324,7 @@ useHead({
 
 .form-group {
   position: relative;
+  margin-bottom: 1.25rem;
 }
 
 .form-label {

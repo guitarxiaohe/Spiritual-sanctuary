@@ -1,4 +1,4 @@
-import { getClientIP, getRateLimitStatus } from '../../utils/rateLimit'
+import { getClientIP, getRateLimitStatus } from '../utils/rateLimit'
 
 export default defineEventHandler(event => {
   const ip = getClientIP(event)

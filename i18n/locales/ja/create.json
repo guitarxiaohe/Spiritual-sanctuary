@@ -1,0 +1,22 @@
+{
+  "category": "カテゴリー",
+  "mood": "気分",
+  "title": "タイトル",
+  "titlePlaceholder": "物語に名前をつけて...",
+  "content": "物語の内容",
+  "contentPlaceholder": "言いたいことを書いて...",
+  "tags": "タグ",
+  "tagPlaceholder": "タグを入力してEnterを押す...",
+  "hotTags": "人気のタグ：",
+  "clear": "クリア",
+  "submit": "物語を投稿",
+  "submitting": "投稿中...",
+  "backHome": "← ホームに戻る",
+  "pageTitle": "あなたの物語を共有",
+  "pageSubtitle": "ここでは誰もあなたを知らない、ただ話せばいい",
+  "rateLimit": "本日の残り投稿回数：",
+  "success": "投稿成功！",
+  "failed": "投稿失敗",
+  "failedRetry": "投稿に失敗しました、後でもう一度お試しください",
+  "rateLimitExceeded": "リクエストが多すぎます、後でもう一度お試しください"
+}

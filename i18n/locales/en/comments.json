@@ -1,0 +1,15 @@
+{
+  "title": "Comments",
+  "placeholder": "Say something...",
+  "submit": "Post Comment",
+  "submitting": "Posting...",
+  "reply": "Reply",
+  "replyTo": "Reply to",
+  "cancel": "Cancel",
+  "emptyEmoji": "💭",
+  "emptyText": "No comments yet, say something",
+  "loadMore": "Load more comments",
+  "noMore": "No more comments",
+  "success": "Comment posted",
+  "failed": "Failed to comment, please try again later"
+}

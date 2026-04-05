@@ -3,28 +3,28 @@
     <!-- Hero 区域 -->
     <section class="hero">
       <div class="hero-inner">
-        <div class="hero-badge">🫧 匿名港湾</div>
+        <div class="hero-badge">{{ $t('page.hero.badge') }}</div>
         <h1 class="hero-title">
-          <span class="title-main">港湾</span>
-          <span class="title-sub">不知道找谁说的时候，说给陌生人听</span>
+          <span class="title-main">{{ $t('page.hero.title') }}</span>
+          <span class="title-sub">{{ $t('page.hero.subtitle') }}</span>
         </h1>
         <p class="hero-desc">
-          这里大家互不相识，没有评判，只有倾听。<br />你的故事不会消失，总有人懂你。
+          {{ $t('page.hero.description') }}
         </p>
         <div class="hero-stats">
           <div class="stat-item">
             <span class="stat-num">{{ stories.length }}</span>
-            <span class="stat-label">个故事</span>
+            <span class="stat-label">{{ $t('page.hero.stats.stories') }}</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
             <span class="stat-num">{{ totalbaobao }}</span>
-            <span class="stat-label">声抱抱</span>
+            <span class="stat-label">{{ $t('page.hero.stats.baobao') }}</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
             <span class="stat-num">{{ totalLikes }}</span>
-            <span class="stat-label">次共鸣</span>
+            <span class="stat-label">{{ $t('page.hero.stats.likes') }}</span>
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
           :class="{ active: activeTag === tag }"
           @click="toggleTag(tag)"
         >
-          {{ tag }}
+          {{ tag === '全部' ? $t('page.filter-bar.all') : tag }}
         </button>
 
         <!-- 展开按钮 -->
@@ -57,7 +57,7 @@
           class="filter-btn filter-expand-btn"
           @click="filterExpanded = true"
         >
-          <span>···</span>
+          <span>{{ $t('page.filter-bar.collapse') }}</span>
           <span class="expand-badge">+{{ hiddenCount }}</span>
         </button>
 
@@ -67,7 +67,7 @@
           class="filter-btn filter-collapse-btn"
           @click="filterExpanded = false"
         >
-          收起 ↑
+          {{ $t('page.filter-bar.expand') }}
         </button>
       </div>
     </section>
@@ -89,24 +89,26 @@
       </div>
 
       <div v-if="filteredStories.length === 0" class="empty-state">
-        <span class="empty-emoji">🤔</span>
-        <p>没有找到相关故事</p>
-        <button class="clear-filter-btn" @click="activeTag = null">清除筛选</button>
+        <span class="empty-emoji">{{ $t('page.index.emptyEmoji') }}</span>
+        <p>{{ $t('page.index.emptyText') }}</p>
+        <button class="clear-filter-btn" @click="activeTag = null">
+          {{ $t('page.index.clearFilter') }}
+        </button>
       </div>
     </section>
 
     <!-- 浮动新建按钮 -->
-    <NuxtLink to="/create" class="create-fab" title="我也想写一条">
+    <NuxtLink to="/create" class="create-fab" :title="$t('page.index.writeStoryFull')">
       <span class="fab-icon">✍️</span>
-      <span class="fab-text">写一条</span>
+      <span class="fab-text">{{ $t('page.index.writeStory') }}</span>
     </NuxtLink>
   </div>
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 const { stories, toggleLike, togglebaobao, isLiked, isBaobaod } = useStories()
 
-// 标签筛选
 const activeTag = ref<string | null>(null)
 const filterExpanded = ref(false)
 const FILTER_LIMIT = 20
@@ -114,7 +116,7 @@ const FILTER_LIMIT = 20
 const allTags = computed(() => {
   const tagSet = new Set<string>()
   stories.value.forEach(s => s.tags.forEach(t => tagSet.add(t)))
-  return ['全部', ...tagSet]
+  return [t('page.filter-bar.all'), ...tagSet]
 })
 
 const visibleTags = computed(() =>
@@ -124,19 +126,18 @@ const visibleTags = computed(() =>
 const hiddenCount = computed(() => Math.max(0, allTags.value.length - FILTER_LIMIT))
 
 const filteredStories = computed(() => {
-  if (!activeTag.value || activeTag.value === '全部') return stories.value
+  if (!activeTag.value || activeTag.value === t('page.filter-bar.all')) return stories.value
   return stories.value.filter(s => s.tags.includes(activeTag.value!))
 })
 
 const toggleTag = (tag: string) => {
-  if (tag === '全部') {
+  if (tag === t('page.filter-bar.all')) {
     activeTag.value = null
     return
   }
   activeTag.value = activeTag.value === tag ? null : tag
 }
 
-// 统计数据
 const totalbaobao = computed(() =>
   stories.value.reduce((acc, s) => acc + s.baobao, 0).toLocaleString('zh-CN')
 )
@@ -144,7 +145,6 @@ const totalLikes = computed(() =>
   stories.value.reduce((acc, s) => acc + s.likes, 0).toLocaleString('zh-CN')
 )
 
-// 装饰 emoji
 const decorEmojis = [
   {
     id: 1,
