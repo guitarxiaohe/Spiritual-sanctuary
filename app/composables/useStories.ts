@@ -87,7 +87,7 @@ export const useStories = () => {
   }
 
   const toggleLike = async (id: string | number) => {
-    const story = stories.value.find(s => s.id === id)
+    const story = stories.value.find((s) => s.id === id)
     if (!story) return
 
     const isLiked = likedIds.value.has(id)
@@ -125,7 +125,7 @@ export const useStories = () => {
   }
 
   const togglebaobao = async (id: string | number) => {
-    const story = stories.value.find(s => s.id === id)
+    const story = stories.value.find((s) => s.id === id)
     if (!story) return
 
     const isBaobaod = baobaoIds.value.has(id)
@@ -162,7 +162,7 @@ export const useStories = () => {
     }
   }
 
-  const getStory = (id: string | number) => stories.value.find(s => s.id === id)
+  const getStory = (id: string | number) => stories.value.find((s) => s.id === id)
 
   const isLiked = (id: string | number) => hydrated.value && likedIds.value.has(id)
   const isBaobaod = (id: string | number) => hydrated.value && baobaoIds.value.has(id)

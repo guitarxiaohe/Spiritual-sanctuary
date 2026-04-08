@@ -1,14 +1,14 @@
 export interface UserState {
   // 用户ID
-  id: string;
+  id: string
   // 用户姓名
-  name: string;
+  name: string
   // 用户邮箱
-  email: string;
+  email: string
   // 用户头像URL
-  avatar: string;
+  avatar: string
   // 用户电话号码
-  phone: string;
+  phone: string
   // 用户地址
-  address: string;
+  address: string
 }

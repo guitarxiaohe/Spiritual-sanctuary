@@ -19,24 +19,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+  import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-const scrollY = ref(0)
+  const scrollY = ref(0)
 
-const contentStyle = computed(() => ({
-  transform: `translateY(${scrollY.value * 0.3}px)`,
-  opacity: Math.max(0, 1 - scrollY.value / 500),
-}))
+  const contentStyle = computed(() => ({
+    transform: `translateY(${scrollY.value * 0.3}px)`,
+    opacity: Math.max(0, 1 - scrollY.value / 500),
+  }))
 
-function handleScroll() {
-  scrollY.value = window.scrollY
-}
+  function handleScroll() {
+    scrollY.value = window.scrollY
+  }
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
-})
+  onMounted(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true })
+  })
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+  })
 </script>

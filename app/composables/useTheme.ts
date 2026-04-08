@@ -32,20 +32,20 @@ export const useTheme = () => {
 
     document.body.appendChild(overlay)
 
-    await new Promise(r => setTimeout(r, 50))
+    await new Promise((r) => setTimeout(r, 50))
 
     overlay.classList.add('expanding')
 
-    await new Promise(r => setTimeout(r, 400))
+    await new Promise((r) => setTimeout(r, 400))
 
     toggleDark()
 
-    await new Promise(r => setTimeout(r, 50))
+    await new Promise((r) => setTimeout(r, 50))
 
     overlay.classList.remove('expanding')
     overlay.classList.add('collapsing')
 
-    await new Promise(r => setTimeout(r, 400))
+    await new Promise((r) => setTimeout(r, 400))
 
     overlay.remove()
     isTransitioning.value = false

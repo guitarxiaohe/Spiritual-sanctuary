@@ -15,8 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import Header from './Header.vue'
-import Footer from './Footer.vue'
+  import Header from './Header.vue'
+  import Footer from './Footer.vue'
 
-const route = useRoute()
+  const route = useRoute()
 </script>
