@@ -12,7 +12,10 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "prepare": "husky",
+    "format": "prettier --write app/",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@nuxt/eslint": "1.15.2",
@@ -40,6 +43,8 @@
     "@types/node": "^22.0.0",
     "@types/uuid": "^10.0.0",
     "element-plus": "^2.13.6",
+    "husky": "^9.1.7",
+    "prettier": "^3.8.1",
     "sass": "^1.98.0"
   }
 }
