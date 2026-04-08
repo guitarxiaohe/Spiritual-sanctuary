@@ -3,9 +3,9 @@ export default defineNuxtConfig({
 
   extends: [
     // 统一配置
-    './configs/base',
+    './layers/base',
     // vite
-    './configs/vite',
+    './layers/vite',
   ],
 
   i18n: {
