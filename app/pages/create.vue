@@ -114,6 +114,7 @@
             class="btn-submit"
             :disabled="!isFormValid || submitting || rateLimitInfo?.remaining === 0"
           >
+            >
             {{ submitting ? $t('page.create.submitting') : $t('page.create.submit') }}
           </button>
         </div>
@@ -165,6 +166,7 @@
   const submitting = ref(false)
   const rateLimitInfo = ref<RateLimitInfo | null>(null)
 
+  const tagInputDisabled = computed(() => tagInput.value.length == 0)
   const isFormValid = computed(() => {
     return (
       form.category &&
